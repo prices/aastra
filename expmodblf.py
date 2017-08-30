@@ -25,9 +25,22 @@
 
 from subprocess import check_output
 import string
-
+import sys
+import os
 
 def main():
+    fptr  = None
+    if (len(sys.argv) > 1):
+        fname = str(sys.argv[1]).replace('/', '').replace('\\', '')
+        if len(fname) > 0:
+            fptr = open(fname, 'w')
+            if os.path.isfile(fname + ".in"):
+                infile = open(fname + ".in")
+                fptr.write(infile.read())
+
+
+
+
     values = check_output(['asterisk', '-rx', 'database show'])
     values = string.split(values, '\n')
     extensions = {}
@@ -35,16 +48,18 @@ def main():
         line = string.split(k, ":")
         if 'cidname' in line[0]:
             ext  = string.split(line[0], "/")[2]
-            extensions[ext] = line[1]
+            extensions[ext] = line[1].strip()
 
     expmod = 1
     key = 1
 
-    for ext in extensions:
+    outstr = ""
+    for ext in sorted(extensions.iterkeys()):
         modstr = "expmod" + str(expmod) + " key" + str(key)
-        print modstr + " type: blf"
-        print modstr + " label: " + extensions[ext]
-        print modstr + " value: " + ext
+        outstr = outstr + modstr + " type: blf" + os.linesep
+        outstr = outstr + modstr + " label: " + extensions[ext] + os.linesep
+        outstr = outstr + modstr + " value: " + str(ext) + os.linesep
+
         key += 1
         if key > 60:
            expmod += 1
@@ -52,7 +67,10 @@ def main():
            if expmod > 3:
               exit()
 
-
+    if fptr is None:
+        print outstr
+    else:
+        fptr.write(outstr)
 
 if __name__ == "__main__":
     main()
