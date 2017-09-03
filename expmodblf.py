@@ -28,7 +28,34 @@ import string
 import sys
 import os
 
+expmod = 1
+key = 1
+
+
+def blfString(ext, name):
+    global key, expmod
+    modstr = "expmod" + str(expmod) + " key" + str(key)
+    outstr = ""
+    outstr = outstr + modstr + " type: blf" + os.linesep
+    outstr = outstr + modstr + " label: " + str(name) + os.linesep
+    outstr = outstr + modstr + " value: " + str(ext) + os.linesep
+    outstr = outstr + os.linesep
+    return outstr
+
+
+def incKey():
+    global key, expmod
+    key += 1
+    if key > 60:
+        expmod += 1
+        key = 1
+        if expmod > 3:
+            exit()
+
+
+
 def main():
+    global key, expmod
     fptr  = None
     if (len(sys.argv) > 1):
         fname = str(sys.argv[1]).replace('/', '').replace('\\', '')
@@ -37,9 +64,6 @@ def main():
             if os.path.isfile(fname + ".in"):
                 infile = open(fname + ".in")
                 fptr.write(infile.read())
-
-
-
 
     values = check_output(['asterisk', '-rx', 'database show'])
     values = string.split(values, '\n')
@@ -50,22 +74,18 @@ def main():
             ext  = string.split(line[0], "/")[2]
             extensions[ext] = line[1].strip()
 
-    expmod = 1
-    key = 1
 
     outstr = ""
-    for ext in sorted(extensions.iterkeys()):
-        modstr = "expmod" + str(expmod) + " key" + str(key)
-        outstr = outstr + modstr + " type: blf" + os.linesep
-        outstr = outstr + modstr + " label: " + extensions[ext] + os.linesep
-        outstr = outstr + modstr + " value: " + str(ext) + os.linesep
 
-        key += 1
-        if key > 60:
-           expmod += 1
-           key = 1
-           if expmod > 3:
-              exit()
+    for pk in range(1, 9):
+        park = 700 + pk
+        outstr = outstr + blfString(park, "Park " + str(park))
+        incKey()
+
+
+    for ext in sorted(extensions.iterkeys()):
+        outstr = outstr + blfString(ext, extensions[ext])
+        incKey()
 
     if fptr is None:
         print outstr
@@ -74,4 +94,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
