@@ -53,6 +53,27 @@ def incKey():
             exit()
 
 
+def parking():
+    outstr = ""
+    values = check_output(['asterisk', '-rx', 'parking show'])
+    values = string.split(values, '\n')
+    extensions = {}
+    conferences = {}
+    conf = 1
+    start = None
+    end = None
+    for k in values:
+        line = string.split(k, ":")
+        if 'Spaces' in line[0]:
+            space = string.split(line[1], "-")
+            start = int(space[0])
+            end   = int(space[1])
+    if start is not None:
+        for park in range(start, end + 1):
+            outstr = outstr + blfString(park, "Park " + str(park))
+            incKey()
+
+    return outstr
 
 def main():
     global key, expmod
@@ -68,20 +89,22 @@ def main():
     values = check_output(['asterisk', '-rx', 'database show'])
     values = string.split(values, '\n')
     extensions = {}
+    conferences = {}
+
     for k in values:
         line = string.split(k, ":")
         if 'cidname' in line[0]:
-            ext  = string.split(line[0], "/")[2]
+            ext = string.split(line[0], "/")[2]
             extensions[ext] = line[1].strip()
+        elif 'CONFERENCE' in line[0] and 'exten' in line[0]:
+            ext = line[1].strip()
+            conferences[ext] = "Conf " + str(ext)
 
+    outstr = parking()
 
-    outstr = ""
-
-    for pk in range(1, 9):
-        park = 700 + pk
-        outstr = outstr + blfString(park, "Park " + str(park))
+    for ext in sorted(conferences.iterkeys()):
+        outstr = outstr + blfString(ext, conferences[ext])
         incKey()
-
 
     for ext in sorted(extensions.iterkeys()):
         outstr = outstr + blfString(ext, extensions[ext])
@@ -94,5 +117,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
