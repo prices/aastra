@@ -36,7 +36,7 @@ def blfString(ext, name):
     global key, expmod
     modstr = "expmod" + str(expmod) + " key" + str(key)
     outstr = ""
-    outstr = outstr + modstr + " type: blf/xfer" + os.linesep
+    outstr = outstr + modstr + " type: blf" + os.linesep
     outstr = outstr + modstr + " label: " + str(name) + os.linesep
     outstr = outstr + modstr + " value: " + str(ext) + os.linesep
     outstr = outstr + os.linesep
