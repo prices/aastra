@@ -100,15 +100,15 @@ def main():
             ext = line[1].strip()
             conferences[ext] = "Conf " + str(ext)
 
-    outstr = parking()
+    for ext in sorted(extensions.iterkeys()):
+        outstr = outstr + blfString(ext, extensions[ext])
+        incKey()
 
     for ext in sorted(conferences.iterkeys()):
         outstr = outstr + blfString(ext, conferences[ext])
         incKey()
 
-    for ext in sorted(extensions.iterkeys()):
-        outstr = outstr + blfString(ext, extensions[ext])
-        incKey()
+    outstr = parking()
 
     if fptr is None:
         print outstr
