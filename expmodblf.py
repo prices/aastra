@@ -91,6 +91,8 @@ def main():
     extensions = {}
     conferences = {}
 
+    outstr = ""
+    
     for k in values:
         line = string.split(k, ":")
         if 'cidname' in line[0]:
@@ -108,7 +110,7 @@ def main():
         outstr = outstr + blfString(ext, conferences[ext])
         incKey()
 
-    outstr = parking()
+    outstr = outstr + parking()
 
     if fptr is None:
         print outstr
