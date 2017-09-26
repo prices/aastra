@@ -103,3 +103,7 @@ ENV/
 
 #kdev stuff
 *.kdev4
+
+test.data
+test
+extensions.map

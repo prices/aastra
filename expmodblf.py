@@ -30,15 +30,35 @@ import os
 
 expmod = 1
 key = 1
+test = False
+emap = {}
+
+
+def getMap():
+    global emap
+    if os.path.isfile("extensions.map"):
+        fptr = open("extensions.map")
+        values = fptr.read()
+        values = string.split(values, '\n')
+        for line in values:
+            line = string.split(line, ':')
+            if len(line) > 1:
+                emap[line[0]] = line[1].strip()
+    
 
 
 def blfString(ext, name):
-    global key, expmod
+    global key, expmod, emap
+    try:
+        useext = emap[ext]
+    except KeyError:
+        useext = ext
+        
     modstr = "expmod" + str(expmod) + " key" + str(key)
     outstr = ""
     outstr = outstr + modstr + " type: blf" + os.linesep
     outstr = outstr + modstr + " label: " + str(name) + os.linesep
-    outstr = outstr + modstr + " value: " + str(ext) + os.linesep
+    outstr = outstr + modstr + " value: " + str(useext) + os.linesep
     outstr = outstr + os.linesep
     return outstr
 
@@ -55,7 +75,14 @@ def incKey():
 
 def parking():
     outstr = ""
-    values = check_output(['asterisk', '-rx', 'parking show'])
+    if not test:
+        values = check_output(['asterisk', '-rx', 'parking show'])
+    else:
+        if os.path.isfile("test.data"):
+            fptr2 = open("test.data")
+            values = fptr2.read()
+        else:
+            values = "" 
     values = string.split(values, '\n')
     extensions = {}
     conferences = {}
@@ -76,23 +103,37 @@ def parking():
     return outstr
 
 def main():
-    global key, expmod
+    global key, expmod, test, emap
     fptr  = None
     if (len(sys.argv) > 1):
         fname = str(sys.argv[1]).replace('/', '').replace('\\', '')
-        if len(fname) > 0:
+        if len(fname) > 0 and os.path.isfile(fname):
             fptr = open(fname, 'w')
             if os.path.isfile(fname + ".in"):
                 infile = open(fname + ".in")
                 fptr.write(infile.read())
 
-    values = check_output(['asterisk', '-rx', 'database show'])
+    getMap()
+
+    for x in sys.argv:
+        if x == "test":
+            
+            test = True
+
+    if not test:
+        values = check_output(['asterisk', '-rx', 'database show'])
+    else:
+        if os.path.isfile("test.data"):
+            fptr2 = open("test.data")
+            values = fptr2.read()
+        else:
+            values = "" 
+            
+            
     values = string.split(values, '\n')
     extensions = {}
     conferences = {}
 
-    outstr = ""
-    
     for k in values:
         line = string.split(k, ":")
         if 'cidname' in line[0]:
@@ -102,6 +143,8 @@ def main():
             ext = line[1].strip()
             conferences[ext] = "Conf " + str(ext)
 
+    outstr = ""
+    
     for ext in sorted(extensions.iterkeys()):
         outstr = outstr + blfString(ext, extensions[ext])
         incKey()
