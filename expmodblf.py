@@ -32,10 +32,10 @@ expmod = 1
 key = 1
 test = False
 emap = {}
-
+tmap = {}
 
 def getMap():
-    global emap
+    global emap, tmap
     if os.path.isfile("extensions.map"):
         fptr = open("extensions.map")
         values = fptr.read()
@@ -44,6 +44,8 @@ def getMap():
             line = string.split(line, ':')
             if len(line) > 1:
                 emap[line[0]] = line[1].strip()
+            if len(line) > 2:
+                tmap[line[0]] = line[2].strip()
     
 
 
@@ -53,13 +55,18 @@ def blfString(ext, name):
         useext = emap[ext]
     except KeyError:
         useext = ext
+
+    try:
+        usetype = tmap[ext]
+    except KeyError:
+        usetype = "blf"
         
     modstr = "expmod" + str(expmod) + " key" + str(key)
     outstr = ""
-    outstr = outstr + modstr + " type: blf" + os.linesep
-    outstr = outstr + modstr + " label: " + str(name) + os.linesep
-    outstr = outstr + modstr + " value: " + str(useext) + os.linesep
-    outstr = outstr + os.linesep
+    outstr += modstr + " type: " + usetype + os.linesep
+    outstr += modstr + " label: " + str(name) + os.linesep
+    outstr += modstr + " value: " + str(useext) + os.linesep
+    outstr += os.linesep
     return outstr
 
 
