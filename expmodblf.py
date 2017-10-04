@@ -49,17 +49,22 @@ def getMap():
     
 
 
-def blfString(ext, name):
+def blfString(ext, name, ktype = "blf"):
     global key, expmod, emap
     try:
         useext = emap[ext]
+        if len(useext) == 0:
+            useext = ext
     except KeyError:
         useext = ext
-
+            
     try:
         usetype = tmap[ext]
+        if usetype == "none":
+            return ""
+        
     except KeyError:
-        usetype = "blf"
+        usetype = ktype
         
     modstr = "expmod" + str(expmod) + " key" + str(key)
     outstr = ""
@@ -104,7 +109,7 @@ def parking():
             end   = int(space[1])
     if start is not None:
         for park in range(start, end + 1):
-            outstr = outstr + blfString(park, "Park " + str(park))
+            outstr = outstr + blfString(park, "Park " + str(park), "speeddialxfer")
             incKey()
 
     return outstr
@@ -157,7 +162,7 @@ def main():
         incKey()
 
     for ext in sorted(conferences.iterkeys()):
-        outstr = outstr + blfString(ext, conferences[ext])
+        outstr = outstr + blfString(ext, conferences[ext], "speeddialxfer")
         incKey()
 
     outstr = outstr + parking()
