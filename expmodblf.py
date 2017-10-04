@@ -49,7 +49,7 @@ def getMap():
     
 
 
-def blfString(ext, name, ktype = "blf"):
+def blfString(ext, name, ktype = "blfxfer"):
     global key, expmod, emap
     try:
         useext = emap[ext]
